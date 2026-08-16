@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -17,19 +17,23 @@ jobs:
       - name: Extract Flutter project
         run: |
           mkdir -p project
-          unzip -q CHUK_by_Viraat_Jarsoniya_Android_Ready.zip -d project
+          unzip -o CHUK_by_Viraat_Jarsoniya_Android_Ready.zip -d project
 
       - name: Find Flutter project
         run: |
           PROJECT_DIR=$(find project -name pubspec.yaml -print -quit | xargs dirname)
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
-      - name: Upgrade Gradle
-        run: |
-          find project -name gradle-wrapper.properties -exec sed -i 's/gradle-8\.7-bin\.zip/gradle-8.14-bin.zip/g' {} \;
+          echo "Flutter project found at: $PROJECT_DIR"
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.32.8'
           channel: stable
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
 
       - name: Get packages
         working-directory: ${{ env.PROJECT_DIR }}
